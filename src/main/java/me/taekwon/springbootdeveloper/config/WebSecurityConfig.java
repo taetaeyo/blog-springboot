@@ -13,13 +13,16 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
+/*
 @RequiredArgsConstructor
 @Configuration
 public class WebSecurityConfig {
 
     private final UserDetailService userService;
 
-    /* spring security 기능 비활성화 */
+    */
+/* spring security 기능 비활성화 *//*
+
     @Bean
     public WebSecurityCustomizer configure() {
         return (web) -> web.ignoring()
@@ -27,7 +30,9 @@ public class WebSecurityConfig {
                 .requestMatchers("/static/**");
     }
 
-    /* 특정 HTTP 요청에 대한 웹 기반 보안 구성 */
+    */
+/* 특정 HTTP 요청에 대한 웹 기반 보안 구성 *//*
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
@@ -47,7 +52,9 @@ public class WebSecurityConfig {
                 .build();
     }
 
-    /* 인증 관리자 관련 설정 */
+    */
+/* 인증 관리자 관련 설정 *//*
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder, UserDetailService userDetailService) throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class)
@@ -57,10 +64,13 @@ public class WebSecurityConfig {
                 .build();
     }
 
-    /* 패스워드 인코더로 사용할 Bean 등록 */
+    */
+/* 패스워드 인코더로 사용할 Bean 등록 *//*
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
 }
+*/
