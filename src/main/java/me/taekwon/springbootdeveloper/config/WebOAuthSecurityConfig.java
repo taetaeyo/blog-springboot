@@ -2,6 +2,8 @@ package me.taekwon.springbootdeveloper.config;
 
 import lombok.RequiredArgsConstructor;
 import me.taekwon.springbootdeveloper.config.jwt.TokenProvider;
+import me.taekwon.springbootdeveloper.config.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
+import me.taekwon.springbootdeveloper.config.oauth.OAuth2SuccessHandler;
 import me.taekwon.springbootdeveloper.config.oauth.Oauth2UserCustomService;
 import me.taekwon.springbootdeveloper.repository.RefreshTokenRepository;
 import me.taekwon.springbootdeveloper.service.UserService;
@@ -37,6 +39,7 @@ public class WebOAuthSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // token 방식으로 인증을 하기 때문에 기존에 사용하던 Form로그인, session 비활성화
         http.csrf().disable()
                 .httpBasic().disable()
                 .formLogin().disable()
@@ -45,8 +48,10 @@ public class WebOAuthSecurityConfig {
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.addFilterBefore(tokenAuthenficationFilter(), UsernamePasswordAuthenticationFilter.class);
+        // 헤더를 확인할 커스텀 필터 추가
+        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
+        // 토근 재발급 URL은 인증 없이 접근 가능하도록 설정. 나머지 API URL은 인증 필요
         http.authorizeHttpRequests()
                 .requestMatchers("/api/token").permitAll()
                 .requestMatchers("/api/**").authenticated()
@@ -55,14 +60,16 @@ public class WebOAuthSecurityConfig {
         http.oauth2Login()
                 .loginPage("/login")
                 .authorizationEndpoint()
+                // Authorization 요청과 관련된 상태 저장
                 .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository())
                 .and()
-                .successHandler(oAuth2SuccessHandler())
+                .successHandler(oAuth2SuccessHandler()) // 인증 성공 시 실행할 핸들러
                 .userInfoEndpoint()
                 .userService(oauth2UserCustomService);
 
         http.logout().logoutSuccessUrl("/login");
 
+        // /api로 시작하는 url인 경우 401 상태 커드를 반환하도록 예외 처리
         http.exceptionHandling()
                 .defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                         new AntPathRequestMatcher("/api/**"));
